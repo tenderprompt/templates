@@ -1,0 +1,10 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "Selectable coupon setup"
+handle = "coupon-admin-home"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/AppHome.jsx"
+target = "admin.app.home.render"

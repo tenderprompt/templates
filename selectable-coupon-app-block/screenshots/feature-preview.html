@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Selectable coupon feature preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #242424;
+        background: #f6f5f2;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+      }
+
+      .preview-grid {
+        display: grid;
+        gap: 24px;
+        width: max-content;
+      }
+
+      .product-preview,
+      .collection-preview {
+        box-sizing: border-box;
+        background: #fff;
+      }
+
+      .product-preview {
+        width: 580px;
+        padding: 28px;
+        border: 1px solid #dedbd3;
+        border-radius: 12px;
+      }
+
+      .product-title {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .product-price {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        color: #2b2b2b;
+        font-size: 17px;
+      }
+
+      .compare-price {
+        color: #8b8780;
+        text-decoration: line-through;
+      }
+
+      .coupon-row {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        min-height: 52px;
+        gap: 12px;
+        border: 1px solid rgba(36, 36, 36, 0.14);
+        border-radius: 14px;
+        background: rgba(36, 36, 36, 0.025);
+        padding: 0 16px;
+        font-size: 15px;
+      }
+
+      .coupon-kicker {
+        color: rgba(36, 36, 36, 0.68);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .coupon-check {
+        position: relative;
+        width: 16px;
+        height: 16px;
+        border: 1px solid rgba(36, 36, 36, 0.42);
+        border-radius: 5px;
+        background: #fff;
+      }
+
+      .coupon-row.is-selected .coupon-check {
+        border-color: #242424;
+        background: #242424;
+      }
+
+      .coupon-row.is-selected .coupon-check::after {
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 5px;
+        height: 9px;
+        border-right: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        content: "";
+        transform: rotate(40deg);
+      }
+
+      .coupon-copy {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .coupon-label {
+        font-weight: 600;
+      }
+
+      .coupon-savings {
+        color: rgba(36, 36, 36, 0.64);
+        font-size: 13px;
+      }
+
+      .collection-preview {
+        width: 270px;
+        padding: 16px;
+        border: 1px solid #e2dfd8;
+        border-radius: 12px;
+      }
+
+      .collection-media {
+        height: 160px;
+        border-radius: 10px;
+        background:
+          radial-gradient(circle at 78% 28%, rgba(135, 166, 145, 0.34), transparent 28%),
+          linear-gradient(135deg, #efe8dc, #f9f6ee);
+      }
+
+      .collection-title {
+        margin: 14px 0 6px;
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      .collection-price {
+        margin-bottom: 10px;
+        color: #444;
+        font-size: 14px;
+      }
+
+      .collection-coupon {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        min-height: 30px;
+        gap: 8px;
+        border: 1px solid rgba(36, 36, 36, 0.14);
+        border-radius: 999px;
+        background: rgba(36, 36, 36, 0.045);
+        padding: 5px 10px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .collection-coupon .coupon-check {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="preview-grid">
+      <section class="product-preview" aria-label="Product coupon feature">
+        <h1 class="product-title">Sample Product</h1>
+        <div class="product-price">
+          <span>$18.99</span>
+          <span class="compare-price">$23.99</span>
+        </div>
+        <div class="coupon-row is-selected">
+          <span class="coupon-kicker">Coupon</span>
+          <span class="coupon-check" aria-hidden="true"></span>
+          <span class="coupon-copy">
+            <span class="coupon-label">Redeemed. Save 20% applied at checkout</span>
+            <span class="coupon-savings">$3.80 savings at checkout</span>
+          </span>
+        </div>
+      </section>
+
+      <section class="collection-preview" aria-label="Collection coupon feature">
+        <div class="collection-media" aria-hidden="true"></div>
+        <div class="collection-title">Sample Product</div>
+        <div class="collection-price">$18.99</div>
+        <div class="collection-coupon">
+          <span class="coupon-check" aria-hidden="true"></span>
+          <span>Apply 20% coupon</span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

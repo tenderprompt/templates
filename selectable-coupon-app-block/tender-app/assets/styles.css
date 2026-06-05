@@ -1,0 +1,182 @@
+.demo-shell {
+	display: grid;
+	width: min(92vw, 720px);
+	gap: 18px;
+	padding: 24px;
+}
+
+tender-coupon-widget {
+	display: block;
+	width: 100%;
+	color: inherit;
+	font: inherit;
+}
+
+tender-coupon-widget[hidden] {
+	display: none;
+}
+
+tender-coupon-widget .tc-horizon-row,
+tender-coupon-widget .tc-horizon-row * {
+	box-sizing: border-box;
+}
+
+tender-coupon-widget .tc-horizon-row {
+	-webkit-appearance: none;
+	appearance: none;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	width: 100%;
+	min-height: var(--height-buy-buttons, 52px);
+	gap: var(--gap-sm, 0.7rem);
+	border: 1px solid rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-10, 0.1));
+	border-radius: var(--style-border-radius-buttons-secondary, 14px);
+	box-shadow: none;
+	margin: 0;
+	padding: 0 var(--padding-lg, 1rem);
+	background: rgb(var(--color-foreground-rgb, 0 0 0) / 0.025);
+	color: var(--color-foreground, rgb(0 0 0 / 0.81));
+	cursor: pointer;
+	font-family: var(--font-paragraph--family, inherit);
+	font-size: var(--font-paragraph--size, 0.875rem);
+	font-style: var(--font-paragraph--style, normal);
+	font-weight: var(--font-paragraph--weight, 400);
+	line-height: var(--font-paragraph--line-height, 1.6);
+	text-align: left;
+	text-transform: var(--font-paragraph--case, none);
+	transition:
+		background-color var(--animation-speed, 150ms) var(--animation-easing, ease),
+		border-color var(--animation-speed, 150ms) var(--animation-easing, ease);
+}
+
+tender-coupon-widget .tc-horizon-row:hover {
+	background: rgb(var(--color-foreground-rgb, 0 0 0) / 0.045);
+	border-color: rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-15, 0.15));
+}
+
+tender-coupon-widget .tc-horizon-row:focus-visible {
+	outline: var(--focus-outline-width, 2px) solid currentColor;
+	outline-offset: var(--focus-outline-offset, 3px);
+}
+
+tender-coupon-widget .tc-horizon-kicker {
+	flex: 0 0 auto;
+	color: rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-subdued-text, 0.7));
+	font-size: var(--font-h6--size, 0.75rem);
+	font-weight: var(--font-h6--weight, 500);
+	line-height: 1;
+	white-space: nowrap;
+}
+
+tender-coupon-widget .tc-horizon-copy {
+	display: grid;
+	min-width: 0;
+	gap: 2px;
+}
+
+tender-coupon-widget .tc-horizon-box {
+	position: relative;
+	display: inline-block;
+	flex: 0 0 auto;
+	width: 16px;
+	height: 16px;
+	border: 1px solid rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-35-55, 0.35));
+	border-radius: 5px;
+	background: var(--color-background, #ffffff);
+}
+
+tender-coupon-widget .tc-horizon-label {
+	min-width: 0;
+	color: var(--color-foreground, rgb(0 0 0 / 0.81));
+	font: inherit;
+	font-weight: 500;
+	letter-spacing: 0;
+	overflow-wrap: anywhere;
+}
+
+tender-coupon-widget .tc-horizon-savings {
+	display: none;
+	color: rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-subdued-text, 0.7));
+	font-size: 0.9em;
+	font-weight: 400;
+	line-height: 1.25;
+	letter-spacing: 0;
+	overflow-wrap: anywhere;
+}
+
+tender-coupon-widget.tender-coupon-widget--selected .tc-horizon-savings {
+	display: block;
+}
+
+tender-coupon-widget.tender-coupon-widget--selected .tc-horizon-row {
+	background: rgb(var(--color-foreground-rgb, 0 0 0) / 0.055);
+	border-color: rgb(var(--color-foreground-rgb, 0 0 0) / 0.18);
+}
+
+tender-coupon-widget.tender-coupon-widget--selected .tc-horizon-box {
+	background: var(--color-foreground, rgb(0 0 0 / 0.81));
+	border-color: var(--color-foreground, rgb(0 0 0 / 0.81));
+}
+
+tender-coupon-widget.tender-coupon-widget--selected .tc-horizon-box::after {
+	position: absolute;
+	left: 4px;
+	top: 1px;
+	width: 5px;
+	height: 9px;
+	border-right: 2px solid var(--color-background, #ffffff);
+	border-bottom: 2px solid var(--color-background, #ffffff);
+	content: "";
+	transform: rotate(40deg);
+}
+
+tender-coupon-widget.tender-coupon-widget--collection {
+	width: fit-content;
+	max-width: 100%;
+}
+
+tender-coupon-widget.tender-coupon-widget--collection .tc-horizon-row {
+	width: auto;
+	min-height: 30px;
+	gap: var(--gap-xs, 0.5rem);
+	padding: 5px 10px;
+	border-radius: var(--style-border-radius-pills, 999px);
+	background: rgb(var(--color-foreground-rgb, 0 0 0) / 0.045);
+	font-size: min(0.85em, var(--font-paragraph--size, 0.875rem));
+	line-height: 1.2;
+}
+
+tender-coupon-widget.tender-coupon-widget--collection .tc-horizon-kicker {
+	display: none;
+}
+
+tender-coupon-widget.tender-coupon-widget--collection .tc-horizon-copy {
+	display: block;
+}
+
+tender-coupon-widget.tender-coupon-widget--collection .tc-horizon-box {
+	width: 14px;
+	height: 14px;
+	border-radius: 4px;
+}
+
+tender-coupon-widget.tender-coupon-widget--collection.tender-coupon-widget--selected .tc-horizon-box::after {
+	left: 4px;
+	top: 1px;
+	width: 4px;
+	height: 7px;
+	border-right-width: 1.5px;
+	border-bottom-width: 1.5px;
+}
+
+@media (max-width: 749px) {
+	tender-coupon-widget .tc-horizon-row {
+		min-height: var(--minimum-touch-target, 44px);
+		padding: 0 var(--padding-md, 0.75rem);
+	}
+
+	tender-coupon-widget .tc-horizon-kicker {
+		display: none;
+	}
+}

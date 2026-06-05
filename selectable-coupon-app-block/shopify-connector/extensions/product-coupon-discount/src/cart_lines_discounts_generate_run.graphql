@@ -1,0 +1,27 @@
+query Input($collectionIds: [ID!] = []) {
+  discount {
+    discountClasses
+    couponConfig: metafield(namespace: "$app", key: "tender_coupon_config") {
+      jsonValue
+    }
+  }
+  cart {
+    lines {
+      id
+      quantity
+      tenderCoupon: attribute(key: "_tender_coupon") {
+        value
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+            inConfiguredCollections: inAnyCollection(ids: $collectionIds)
+          }
+        }
+      }
+    }
+  }
+}

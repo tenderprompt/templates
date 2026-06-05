@@ -1,0 +1,20 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "Selectable coupon discount"
+handle = "selectable-coupon-discount"
+type = "function"
+description = "Applies configured Tender product coupons when a cart line carries a valid coupon marker."
+
+[[extensions.targeting]]
+target = "cart.lines.discounts.generate.run"
+input_query = "src/cart_lines_discounts_generate_run.graphql"
+export = "cart-lines-discounts-generate-run"
+
+[extensions.build]
+command = ""
+path = "dist/function.wasm"
+
+[extensions.input.variables]
+namespace = "$app"
+key = "tender_coupon_config"

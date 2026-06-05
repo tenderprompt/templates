@@ -1,0 +1,269 @@
+{% doc %}
+  Tender coupon app block.
+
+  The shopper-facing widget only writes a coupon marker to add-to-cart forms.
+  The Discount Function validates that marker against app-owned config before
+  applying any checkout discount.
+{% enddoc %}
+
+{% liquid
+  assign widget_version = block.settings.widget_version | default: "preview"
+  assign block_product = product
+  if block_product == blank and closest.product != blank
+    assign block_product = closest.product
+  endif
+  assign selected_variant = block_product.selected_or_first_available_variant
+  assign product_id = block_product.id | append: ""
+  assign variant_id = selected_variant.id | append: ""
+  assign product_gid = "gid://shopify/Product/" | append: product_id
+  assign variant_gid = "gid://shopify/ProductVariant/" | append: variant_id
+  assign price_cents = selected_variant.price | default: 0
+  assign currency_code = cart.currency.iso_code | default: shop.currency
+  assign discount_percentage = block.settings.discount_percentage | default: 20
+  assign discount_label = block.settings.discount_label
+  assign coupon_id = block.settings.coupon_id
+  assign title = block.settings.title
+  assign unapplied_text = block.settings.unapplied_text
+  assign applied_text = block.settings.applied_text
+  assign badge_text = block.settings.badge_text
+  assign details_text = block.settings.details_text
+  assign show_savings_estimate = block.settings.show_savings_estimate
+  assign coupon_enabled = false
+  assign storefront_coupon_config = app.metafields.tender.coupon_storefront_config.value
+  assign configured_coupon = blank
+
+  if storefront_coupon_config.coupons != blank
+    for coupon in storefront_coupon_config.coupons
+      if coupon.id == block.settings.coupon_id
+        assign configured_coupon = coupon
+        break
+      endif
+    endfor
+
+    if configured_coupon == blank
+      assign configured_coupon = storefront_coupon_config.coupons.first
+    endif
+  endif
+
+  if configured_coupon != blank
+    assign coupon_id = configured_coupon.id | default: coupon_id
+    assign title = configured_coupon.title | default: title
+    assign discount_label = configured_coupon.title | default: discount_label
+    assign discount_percentage = configured_coupon.percentage | default: discount_percentage
+    assign unapplied_text = configured_coupon.unappliedText | default: unapplied_text
+    assign applied_text = configured_coupon.appliedText | default: applied_text
+    assign badge_text = configured_coupon.badgeText | default: unapplied_text
+
+    if configured_coupon.showSavingsEstimate == false
+      assign show_savings_estimate = false
+    elsif configured_coupon.showSavingsEstimate
+      assign show_savings_estimate = true
+    endif
+  endif
+
+  assign surface_enabled = true
+  if configured_coupon.surfaces != blank
+    if block.settings.surface == "collection" and configured_coupon.surfaces.collection == false
+      assign surface_enabled = false
+    elsif block.settings.surface == "product" and configured_coupon.surfaces.product == false
+      assign surface_enabled = false
+    endif
+  endif
+
+  if block_product != blank and surface_enabled
+    if configured_coupon == blank
+      assign coupon_enabled = true
+    elsif configured_coupon.allProducts
+      assign coupon_enabled = true
+    elsif configured_coupon.eligibleProductIds contains product_gid or configured_coupon.eligibleProductIds contains product_id
+      assign coupon_enabled = true
+    elsif configured_coupon.eligibleVariantIds contains variant_gid or configured_coupon.eligibleVariantIds contains variant_id
+      assign coupon_enabled = true
+    endif
+  endif
+
+  if block_product != blank and surface_enabled and coupon_enabled == false and configured_coupon.eligibleCollectionIds != blank
+    assign active_collection = collection
+    if active_collection == blank and closest.collection != blank
+      assign active_collection = closest.collection
+    endif
+
+    if active_collection != blank
+      assign collection_id = active_collection.id | append: ""
+      assign collection_gid = "gid://shopify/Collection/" | append: collection_id
+      if configured_coupon.eligibleCollectionIds contains collection_gid or configured_coupon.eligibleCollectionIds contains collection_id
+        assign coupon_enabled = true
+      endif
+    endif
+  endif
+
+  if block_product != blank and surface_enabled and coupon_enabled == false and configured_coupon.eligibleCollectionIds != blank
+    for product_collection in block_product.collections
+      assign product_collection_id = product_collection.id | append: ""
+      assign product_collection_gid = "gid://shopify/Collection/" | append: product_collection_id
+      if configured_coupon.eligibleCollectionIds contains product_collection_gid or configured_coupon.eligibleCollectionIds contains product_collection_id
+        assign coupon_enabled = true
+        break
+      endif
+    endfor
+  endif
+
+  if block_product != blank and coupon_id != blank and configured_coupon == blank
+    assign coupon_enabled = true
+  endif
+
+  case widget_version
+    else
+      assign runtime_src = "https://REPLACE_WITH_PUBLISHED_TENDER_HOST/client.js"
+      assign stylesheet_src = "https://REPLACE_WITH_PUBLISHED_TENDER_HOST/styles.css"
+      assign track_url = "https://REPLACE_WITH_PUBLISHED_TENDER_HOST/api/track"
+  endcase
+%}
+
+{% if coupon_enabled %}
+<tender-prompt-widget-block
+  {{ block.shopify_attributes }}
+  class="tender-prompt-widget-block tender-coupon-app-block tender-coupon-app-block--{{ block.settings.surface }}{% if block.settings.surface == "product" and block.settings.show_savings_estimate %} tender-coupon-app-block--savings-enabled{% endif %}"
+  data-tender-artifact-id="REPLACE_WITH_TENDER_ARTIFACT_ID"
+  data-tender-version="{{ widget_version | escape }}"
+  data-tender-runtime-src="{{ runtime_src | escape }}"
+  data-stylesheet-url="{{ stylesheet_src | escape }}"
+  data-tender-element-tag="tender-coupon-widget"
+  data-tender-mode="shopify_app_block"
+  data-config-source="app.metafields.tender.coupon_storefront_config"
+  data-surface="{{ block.settings.surface | escape }}"
+  data-enabled="{{ coupon_enabled }}"
+  data-coupon-id="{{ coupon_id | escape }}"
+  data-discount-label="{{ discount_label | escape }}"
+  data-title="{{ title | escape }}"
+  data-unapplied-text="{{ unapplied_text | escape }}"
+  data-applied-text="{{ applied_text | escape }}"
+  data-badge-text="{{ badge_text | escape }}"
+  data-details-text="{{ details_text | escape }}"
+  data-product-id="{{ product_id | escape }}"
+  data-variant-id="{{ variant_id | escape }}"
+  data-show-savings-estimate="{{ show_savings_estimate }}"
+  data-price-cents="{{ price_cents }}"
+  data-discount-percentage="{{ discount_percentage }}"
+  data-currency-code="{{ currency_code | escape }}"
+  data-track-url="{{ track_url | escape }}"
+  {% if block.settings.form_selector != blank %}
+    data-form-selector="{{ block.settings.form_selector | escape }}"
+  {% endif %}
+  {% if customer %}
+    data-tender-customer-id="{{ customer.id }}"
+  {% endif %}
+>
+  <div data-tender-mount style="position: relative;">
+    <div
+      data-tender-placeholder
+      style="box-sizing: border-box; min-height: 44px; border: 1px solid rgba(0,0,0,.12); border-radius: 8px; background: rgba(255,255,255,.78);"
+    ></div>
+  </div>
+</tender-prompt-widget-block>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Tender coupon",
+  "target": "section",
+  "javascript": "tender-widget.js",
+  "stylesheet": "tender-widget.css",
+  "settings": [
+    {
+      "type": "select",
+      "id": "surface",
+      "label": "Surface",
+      "options": [
+        { "value": "product", "label": "Product page" },
+        { "value": "collection", "label": "Collection card" }
+      ],
+      "default": "product"
+    },
+    {
+      "type": "select",
+      "id": "widget_version",
+      "label": "Widget version",
+      "options": [
+        { "value": "preview", "label": "Preview" }
+      ],
+      "default": "preview"
+    },
+    {
+      "type": "text",
+      "id": "coupon_id",
+      "label": "Coupon ID",
+      "default": "starter-coupon-20"
+    },
+    {
+      "type": "textarea",
+      "id": "eligible_product_ids",
+      "label": "Eligible product IDs",
+      "default": "11111111111111"
+    },
+    {
+      "type": "textarea",
+      "id": "eligible_variant_ids",
+      "label": "Eligible variant IDs",
+      "default": "22222222222222"
+    },
+    {
+      "type": "text",
+      "id": "discount_label",
+      "label": "Discount label",
+      "default": "20% off"
+    },
+    {
+      "type": "range",
+      "id": "discount_percentage",
+      "label": "Discount percentage",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_savings_estimate",
+      "label": "Show redeemed message on product pages",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "default": "20% off"
+    },
+    {
+      "type": "text",
+      "id": "unapplied_text",
+      "label": "Unapplied text",
+      "default": "Apply 20% coupon"
+    },
+    {
+      "type": "text",
+      "id": "applied_text",
+      "label": "Applied text",
+      "default": "Apply 20% coupon"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Collection badge text",
+      "default": "Apply 20% coupon"
+    },
+    {
+      "type": "textarea",
+      "id": "details_text",
+      "label": "Details",
+      "default": "Valid on this product while the offer is active."
+    },
+    {
+      "type": "text",
+      "id": "form_selector",
+      "label": "Add-to-cart form selector"
+    }
+  ]
+}
+{% endschema %}

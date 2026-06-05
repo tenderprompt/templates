@@ -1,0 +1,16 @@
+{
+  "name": "selectable-coupon-app-block-shopify-connector-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "node --check extensions/product-coupon-discount/src/cart_lines_discounts_generate_run.js",
+    "shopify:build": "shopify app build",
+    "shopify:config": "shopify app config validate --json"
+  },
+  "dependencies": {
+    "@shopify/shopify_function": "~2.0.0",
+    "@shopify/ui-extensions": "^2026.4.0",
+    "preact": "^10.29.2"
+  }
+}

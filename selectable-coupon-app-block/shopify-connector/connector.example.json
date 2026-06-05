@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "shopify_connector_source",
+  "connectorId": "<tender-connector-id>",
+  "instanceId": "default",
+  "shopDomain": "<shop-name>.myshopify.com",
+  "adminApiVersion": "2026-04",
+  "clientId": "<shopify-client-id>",
+  "scopes": [
+    "read_discounts",
+    "write_discounts",
+    "read_products"
+  ],
+  "shopify": {
+    "extensions": [
+      {
+        "type": "theme",
+        "handle": "coupon-widget",
+        "sourcePath": "extensions/coupon-widget/shopify.extension.toml",
+        "runtimeUrl": "<published-tender-app-url>/client.js",
+        "stylesheetUrl": "<published-tender-app-url>/styles.css"
+      },
+      {
+        "type": "function",
+        "handle": "selectable-coupon-discount",
+        "target": "cart.lines.discounts.generate.run",
+        "sourcePath": "extensions/product-coupon-discount/shopify.extension.toml"
+      },
+      {
+        "type": "admin_ui_extension",
+        "handle": "coupon-admin-home",
+        "sourcePath": "extensions/admin-home/shopify.extension.toml"
+      }
+    ]
+  },
+  "secrets": {
+    "clientSecret": "stored in Tender connector credentials, not in this source tree",
+    "appAutomationToken": "stored in Tender connector secret store, not in this source tree"
+  }
+}
