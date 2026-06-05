@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "check": "node --check extensions/product-coupon-discount/src/cart_lines_discounts_generate_run.js",
-    "shopify:build": "shopify app build",
-    "shopify:config": "shopify app config validate --json"
+    "shopify:build": "shopify app build"
   },
   "dependencies": {
     "@shopify/shopify_function": "~2.0.0",

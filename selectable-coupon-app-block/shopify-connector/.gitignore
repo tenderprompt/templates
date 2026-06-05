@@ -1,4 +1,6 @@
 node_modules/
 dist/
 .shopify/
+generated/
+package-lock.json
 *.log
