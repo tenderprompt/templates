@@ -1,0 +1,5 @@
+{
+  "name": "Bundle transform",
+  "description": "Expands fixed-price bundle parent lines into component variants."
+}
+

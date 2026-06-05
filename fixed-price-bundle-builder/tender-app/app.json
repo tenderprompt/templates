@@ -1,0 +1,5 @@
+{
+  "runtimeClass": "server_backed",
+  "server": "src/server.ts"
+}
+

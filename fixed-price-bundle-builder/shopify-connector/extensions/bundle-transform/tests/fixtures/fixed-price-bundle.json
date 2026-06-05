@@ -1,0 +1,162 @@
+{
+  "payload": {
+    "export": "cart-transform-run",
+    "target": "cart.transform.run",
+    "input": {
+      "presentmentCurrencyRate": "1.0",
+      "shop": {
+        "bundleConfig": {
+          "config": {
+            "jsonValue": {
+              "version": 1,
+              "handle": "starter-fixed-price-bundles",
+              "title": "Starter Fixed Price Bundles",
+              "currencyCode": "USD",
+              "variantGroups": [
+                {
+                  "group": "starter-products",
+                  "allowedVariantIds": [
+                    "11111111111111",
+                    "22222222222222",
+                    "33333333333333",
+                    "44444444444444"
+                  ],
+                  "allowDuplicateComponents": true
+                }
+              ],
+              "tiers": [
+                {
+                  "bundleId": "starter-4-pack",
+                  "label": "Build a Starter 4-Pack",
+                  "fixedPriceCents": 4000,
+                  "requiredQuantity": 4,
+                  "parentVariantGid": "gid://shopify/ProductVariant/99999999999999",
+                  "variantGroup": "starter-products"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "cartTransform": {
+        "bundleConfig": null
+      },
+      "cart": {
+        "lines": [
+          {
+            "id": "gid://shopify/CartLine/1",
+            "quantity": 1,
+            "bundleId": {
+              "value": "starter-4-pack"
+            },
+            "bundleComponents": {
+              "value": "{\"11111111111111\":1,\"22222222222222\":1,\"33333333333333\":1,\"44444444444444\":1}"
+            },
+            "merchandise": {
+              "__typename": "ProductVariant",
+              "id": "gid://shopify/ProductVariant/99999999999999",
+              "sku": "STARTER-4"
+            }
+          }
+        ]
+      }
+    },
+    "output": {
+      "operations": [
+        {
+          "lineExpand": {
+            "cartLineId": "gid://shopify/CartLine/1",
+            "title": "Build a Starter 4-Pack",
+            "expandedCartItems": [
+              {
+                "merchandiseId": "gid://shopify/ProductVariant/11111111111111",
+                "quantity": 1,
+                "price": {
+                  "adjustment": {
+                    "fixedPricePerUnit": {
+                      "amount": "10.00"
+                    }
+                  }
+                },
+                "attributes": [
+                  {
+                    "key": "_bundle_id",
+                    "value": "starter-4-pack"
+                  },
+                  {
+                    "key": "_bundle_parent",
+                    "value": "gid://shopify/ProductVariant/99999999999999"
+                  }
+                ]
+              },
+              {
+                "merchandiseId": "gid://shopify/ProductVariant/22222222222222",
+                "quantity": 1,
+                "price": {
+                  "adjustment": {
+                    "fixedPricePerUnit": {
+                      "amount": "10.00"
+                    }
+                  }
+                },
+                "attributes": [
+                  {
+                    "key": "_bundle_id",
+                    "value": "starter-4-pack"
+                  },
+                  {
+                    "key": "_bundle_parent",
+                    "value": "gid://shopify/ProductVariant/99999999999999"
+                  }
+                ]
+              },
+              {
+                "merchandiseId": "gid://shopify/ProductVariant/33333333333333",
+                "quantity": 1,
+                "price": {
+                  "adjustment": {
+                    "fixedPricePerUnit": {
+                      "amount": "10.00"
+                    }
+                  }
+                },
+                "attributes": [
+                  {
+                    "key": "_bundle_id",
+                    "value": "starter-4-pack"
+                  },
+                  {
+                    "key": "_bundle_parent",
+                    "value": "gid://shopify/ProductVariant/99999999999999"
+                  }
+                ]
+              },
+              {
+                "merchandiseId": "gid://shopify/ProductVariant/44444444444444",
+                "quantity": 1,
+                "price": {
+                  "adjustment": {
+                    "fixedPricePerUnit": {
+                      "amount": "10.00"
+                    }
+                  }
+                },
+                "attributes": [
+                  {
+                    "key": "_bundle_id",
+                    "value": "starter-4-pack"
+                  },
+                  {
+                    "key": "_bundle_parent",
+                    "value": "gid://shopify/ProductVariant/99999999999999"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+

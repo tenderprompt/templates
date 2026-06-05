@@ -1,0 +1,35 @@
+query CartTransformRunInput {
+  presentmentCurrencyRate
+  shop {
+    bundleConfig: metaobject(handle: { type: "$app:fixed_price_bundle_config", handle: "starter-fixed-price-bundles" }) {
+      config: field(key: "config") {
+        jsonValue
+      }
+    }
+  }
+  cartTransform {
+    bundleConfig: metafield(namespace: "$app", key: "fixed_price_bundle_config") {
+      jsonValue
+    }
+  }
+  cart {
+    lines {
+      id
+      quantity
+      bundleId: attribute(key: "_bundle_id") {
+        value
+      }
+      bundleComponents: attribute(key: "_bundle_components") {
+        value
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          sku
+        }
+      }
+    }
+  }
+}
+

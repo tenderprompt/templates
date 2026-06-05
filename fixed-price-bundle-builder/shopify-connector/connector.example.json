@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "kind": "shopify_connector_source",
+  "connectorId": "<tender-connector-id>",
+  "instanceId": "default",
+  "shopDomain": "<shop-name>.myshopify.com",
+  "adminApiVersion": "2026-07",
+  "clientId": "<shopify-client-id>",
+  "scopes": [
+    "read_cart_transforms",
+    "read_customer_events",
+    "read_metaobjects",
+    "read_pixels",
+    "read_products",
+    "write_cart_transforms",
+    "write_metaobjects",
+    "write_pixels",
+    "write_products",
+    "write_validations"
+  ],
+  "shopify": {
+    "extensions": [
+      {
+        "type": "theme",
+        "handle": "fixed-price-bundle-builder",
+        "sourcePath": "extensions/bundle-builder/shopify.extension.toml",
+        "runtimeUrl": "<published-tender-app-url>/client.js"
+      },
+      {
+        "type": "function",
+        "handle": "bundle-transform",
+        "target": "cart.transform.run",
+        "sourcePath": "extensions/bundle-transform/shopify.extension.toml"
+      },
+      {
+        "type": "web_pixel_extension",
+        "handle": "fixed-price-bundle-analytics-pixel",
+        "sourcePath": "extensions/bundle-analytics-pixel/shopify.extension.toml",
+        "endpoint": "<published-tender-app-url>/api/track",
+        "subscribedEvents": [
+          "tender_bundle_viewed",
+          "tender_bundle_detail_opened",
+          "tender_bundle_quantity_changed",
+          "tender_bundle_filled",
+          "tender_bundle_threshold_reached",
+          "tender_bundle_cart_clicked",
+          "tender_bundle_cart_success",
+          "tender_bundle_cart_failure"
+        ]
+      },
+      {
+        "type": "admin_ui_extension",
+        "handle": "bundle-admin-home",
+        "sourcePath": "extensions/admin-home/shopify.extension.toml"
+      }
+    ]
+  },
+  "secrets": {
+    "clientSecret": "stored in Tender connector credentials, not in this source tree",
+    "appAutomationToken": "stored in Tender connector secret store, not in this source tree"
+  }
+}
+

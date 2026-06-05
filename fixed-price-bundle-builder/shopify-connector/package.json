@@ -1,0 +1,12 @@
+{
+  "name": "fixed-price-bundle-builder-shopify-connector-template",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "@shopify/shopify_function": "~2.0.0",
+    "@shopify/ui-extensions": "^2026.7.0-rc.5",
+    "@shopify/web-pixels-extension": "^2.18.0",
+    "preact": "^10.29.2"
+  }
+}
+

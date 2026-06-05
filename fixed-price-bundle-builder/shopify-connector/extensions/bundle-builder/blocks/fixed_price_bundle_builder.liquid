@@ -1,0 +1,280 @@
+{% liquid
+  assign bundle_product = product
+  if bundle_product == blank
+    assign bundle_product = block.settings.product
+  endif
+
+  assign tender_runtime_src = block.settings.runtime_src | strip
+  assign tender_stylesheet_url = block.settings.stylesheet_url | strip
+  assign bundle_config_json = block.settings.bundle_config_json | strip
+
+  if bundle_config_json == blank and bundle_product.metafields.custom.bundle_builder_config != blank
+    assign bundle_config_json = bundle_product.metafields.custom.bundle_builder_config.value | json
+  endif
+
+  assign skeleton_slot_count = block.settings.skeleton_slot_count | default: 4
+%}
+
+<style>
+  .fp-bundle-builder-app-block__fallback {
+    --fp-skeleton-page: var(--color-background, #f7f7f3);
+    --fp-skeleton-surface: var(--color-card-background, #ffffff);
+    --fp-skeleton-line: var(--color-border, #d0d5dd);
+    --fp-skeleton-line-strong: color-mix(in srgb, var(--fp-skeleton-line) 72%, #111827);
+    --fp-skeleton-border: var(--color-border, #d0d5dd);
+    --fp-skeleton-button: var(--color-foreground, #1d1d1f);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--page-width, 1280px);
+    margin: 0 auto;
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    background: var(--fp-skeleton-page);
+  }
+
+  .fp-bundle-builder-app-block__fallback * {
+    box-sizing: border-box;
+  }
+
+  .fp-bundle-builder-skeleton__shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
+    gap: clamp(1rem, 3vw, 2rem);
+    align-items: start;
+  }
+
+  .fp-bundle-builder-skeleton__header {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .fp-bundle-builder-skeleton__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .fp-bundle-builder-skeleton__card,
+  .fp-bundle-builder-skeleton__summary,
+  .fp-bundle-builder-skeleton__slots {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .fp-bundle-builder-skeleton__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--fp-skeleton-border);
+    border-radius: 0.5rem;
+    background: var(--fp-skeleton-surface);
+  }
+
+  .fp-bundle-builder-skeleton__summary {
+    position: sticky;
+    top: var(--sticky-offset, 1rem);
+    padding: 1rem;
+    border: 1px solid var(--fp-skeleton-border);
+    border-radius: 0.5rem;
+    background: var(--fp-skeleton-surface);
+  }
+
+  .fp-bundle-builder-skeleton__slot {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0.625rem;
+    align-items: center;
+  }
+
+  .fp-bundle-builder-skeleton__thumb {
+    display: block;
+    width: 2.5rem;
+    aspect-ratio: 1 / 1;
+    border-radius: 0.375rem;
+    background: var(--fp-skeleton-line);
+  }
+
+  .fp-bundle-builder-skeleton__line,
+  .fp-bundle-builder-skeleton__button,
+  .fp-bundle-builder-skeleton__media,
+  .fp-bundle-builder-skeleton__thumb {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .fp-bundle-builder-skeleton__line::after,
+  .fp-bundle-builder-skeleton__button::after,
+  .fp-bundle-builder-skeleton__media::after,
+  .fp-bundle-builder-skeleton__thumb::after {
+    animation: fp-bundle-builder-skeleton 1.45s ease-in-out infinite;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62), transparent);
+    content: "";
+    inset: 0;
+    position: absolute;
+    transform: translateX(-100%);
+  }
+
+  .fp-bundle-builder-skeleton__line {
+    display: block;
+    height: 0.875rem;
+    max-width: 100%;
+    border-radius: 999px;
+    background: var(--fp-skeleton-line);
+  }
+
+  .fp-bundle-builder-skeleton__line--eyebrow {
+    width: 9rem;
+    height: 0.75rem;
+  }
+
+  .fp-bundle-builder-skeleton__line--title {
+    width: min(34rem, 92%);
+    height: clamp(2rem, 4vw, 3.5rem);
+    border-radius: 0.375rem;
+    background: var(--fp-skeleton-line-strong);
+  }
+
+  .fp-bundle-builder-skeleton__line--price {
+    width: 8rem;
+    height: 1.5rem;
+    background: var(--fp-skeleton-line-strong);
+  }
+
+  .fp-bundle-builder-skeleton__line--short {
+    width: 62%;
+  }
+
+  .fp-bundle-builder-skeleton__button {
+    display: block;
+    width: 100%;
+    height: 3rem;
+    border-radius: 0.5rem;
+    background: var(--fp-skeleton-button);
+  }
+
+  @keyframes fp-bundle-builder-skeleton {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fp-bundle-builder-skeleton__line::after,
+    .fp-bundle-builder-skeleton__button::after,
+    .fp-bundle-builder-skeleton__media::after,
+    .fp-bundle-builder-skeleton__thumb::after {
+      animation: none;
+    }
+  }
+
+  @media screen and (max-width: 920px) {
+    .fp-bundle-builder-skeleton__shell {
+      grid-template-columns: 1fr;
+    }
+
+    .fp-bundle-builder-skeleton__summary {
+      position: static;
+    }
+  }
+
+  @media screen and (max-width: 700px) {
+    .fp-bundle-builder-skeleton__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<div
+  class="fp-bundle-builder-app-block"
+  data-fixed-price-bundle-builder-block
+  data-tender-runtime-src="{{ tender_runtime_src | escape }}"
+  data-tender-element-tag="fixed-price-bundle-builder"
+  data-stylesheet-url="{{ tender_stylesheet_url | escape }}"
+  data-product-handle="{{ bundle_product.handle | escape }}"
+  data-product-id="{{ bundle_product.id }}"
+  data-product-title="{{ bundle_product.title | escape }}"
+  data-shop-domain="{{ shop.permanent_domain | escape }}"
+  data-mode="shopify_app_block"
+>
+  <div class="fp-bundle-builder-app-block__fallback" aria-hidden="true">
+    <div class="fp-bundle-builder-skeleton__header">
+      <span class="fp-bundle-builder-skeleton__line fp-bundle-builder-skeleton__line--eyebrow"></span>
+      <span class="fp-bundle-builder-skeleton__line fp-bundle-builder-skeleton__line--title"></span>
+      <span class="fp-bundle-builder-skeleton__line fp-bundle-builder-skeleton__line--price"></span>
+    </div>
+    <div class="fp-bundle-builder-skeleton__shell">
+      <div class="fp-bundle-builder-skeleton__grid">
+        {% for index in (1..6) %}
+          <div class="fp-bundle-builder-skeleton__card">
+            <span class="fp-bundle-builder-skeleton__media"></span>
+            <span class="fp-bundle-builder-skeleton__line"></span>
+            <span class="fp-bundle-builder-skeleton__line fp-bundle-builder-skeleton__line--short"></span>
+            <span class="fp-bundle-builder-skeleton__button"></span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="fp-bundle-builder-skeleton__summary">
+        <span class="fp-bundle-builder-skeleton__line"></span>
+        <div class="fp-bundle-builder-skeleton__slots">
+          {% for index in (1..skeleton_slot_count) %}
+            <div class="fp-bundle-builder-skeleton__slot">
+              <span class="fp-bundle-builder-skeleton__thumb"></span>
+              <span class="fp-bundle-builder-skeleton__line"></span>
+            </div>
+          {% endfor %}
+        </div>
+        <span class="fp-bundle-builder-skeleton__button"></span>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-fixed-price-bundle-config>
+    {% if bundle_config_json != blank %}
+      {{ bundle_config_json }}
+    {% else %}
+      null
+    {% endif %}
+  </script>
+</div>
+
+{% schema %}
+{
+  "name": "Bundle Builder",
+  "target": "section",
+  "javascript": "fixed-price-bundle-builder.js",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "autofill": true
+    },
+    {
+      "type": "text",
+      "id": "runtime_src",
+      "label": "Tender runtime client URL"
+    },
+    {
+      "type": "text",
+      "id": "stylesheet_url",
+      "label": "Tender runtime stylesheet URL"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_config_json",
+      "label": "Bundle config JSON"
+    },
+    {
+      "type": "range",
+      "id": "skeleton_slot_count",
+      "label": "Loading slot count",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    }
+  ]
+}
+{% endschema %}
+

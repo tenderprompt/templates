@@ -1,0 +1,11 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "t:name"
+handle = "bundle-admin-home"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/AppHome.jsx"
+target = "admin.app.home.render"
+
