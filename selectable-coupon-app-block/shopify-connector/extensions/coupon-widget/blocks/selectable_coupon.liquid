@@ -1,9 +1,9 @@
 {% doc %}
   Tender coupon app block.
 
-  The shopper-facing widget only writes a coupon marker to add-to-cart forms.
-  The Discount Function validates that marker against app-owned config before
-  applying any checkout discount.
+  The shopper-facing widget only writes a coupon marker to add-to-cart forms
+  and same-origin AJAX cart-add requests. The Discount Function validates that
+  marker against app-owned config before applying any checkout discount.
 {% enddoc %}
 
 {% liquid
@@ -245,7 +245,7 @@
       "type": "text",
       "id": "applied_text",
       "label": "Applied text",
-      "default": "Apply 20% coupon"
+      "default": "Redeemed. Save 20% applied at checkout"
     },
     {
       "type": "text",

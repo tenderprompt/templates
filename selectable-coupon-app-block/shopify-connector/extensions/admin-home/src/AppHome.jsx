@@ -24,6 +24,17 @@ const SAMPLE_CONFIG = {
   ],
 };
 
+const PLACEMENT_LINKS = {
+  productBlock:
+    "https://<shop-name>.myshopify.com/admin/themes/current/editor?template=product",
+  collectionEmbed:
+    "https://<shop-name>.myshopify.com/admin/themes/current/editor?context=apps&template=collection&activateAppId=<shopify-client-id>/selectable_coupon_collection_embed",
+};
+
+export default async () => {
+  render(<AppHome />, document.body);
+};
+
 function AppHome() {
   const configText = JSON.stringify(SAMPLE_CONFIG, null, 2);
 
@@ -34,9 +45,26 @@ function AppHome() {
           <s-list-item>Publish the Tender runtime.</s-list-item>
           <s-list-item>Replace the hosted asset URLs in the app block.</s-list-item>
           <s-list-item>Create or update the automatic app discount.</s-list-item>
-          <s-list-item>Save checkout and storefront config from your app backend.</s-list-item>
-          <s-list-item>Place the app block on product and collection templates.</s-list-item>
+          <s-list-item>Save checkout config on the discount and storefront config on app data.</s-list-item>
+          <s-list-item>Place the product app block and activate the collection app embed.</s-list-item>
         </s-ordered-list>
+      </s-section>
+
+      <s-section heading="Storefront placement">
+        <s-unordered-list>
+          <s-list-item>
+            Product pages use the Selectable coupon app block near the price or product form.
+          </s-list-item>
+          <s-list-item>
+            Collection pages use the Collection coupons app embed, saved in the theme editor.
+          </s-list-item>
+          <s-list-item>
+            Product block link: {PLACEMENT_LINKS.productBlock}
+          </s-list-item>
+          <s-list-item>
+            Collection embed link: {PLACEMENT_LINKS.collectionEmbed}
+          </s-list-item>
+        </s-unordered-list>
       </s-section>
 
       <s-section heading="Starter config">
@@ -45,5 +73,3 @@ function AppHome() {
     </s-page>
   );
 }
-
-render(<AppHome />, document.body);

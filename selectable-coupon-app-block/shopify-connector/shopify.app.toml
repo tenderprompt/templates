@@ -17,10 +17,3 @@ api_version = "2026-04"
 
 [build]
 automatically_update_urls_on_dev = true
-
-[discount.metafields.app.tender_coupon_config]
-name = "Tender coupon config"
-description = "Runtime configuration for selectable product coupon discounts."
-type = "json"
-access.admin = "merchant_read_write"
-access.storefront = "none"

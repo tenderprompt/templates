@@ -5,7 +5,9 @@ Tender-hosted runtime for a Shopify selectable coupon app block.
 The runtime defines the `tender-coupon-widget` custom element used by the
 Shopify Theme App Extension block. The widget renders a theme-native coupon
 control, persists shopper selection, decorates add-to-cart forms with a small
-private line property, and forwards sanitized interaction events to `/api/track`.
+private line property, patches common AJAX cart-add requests, hydrates
+collection-card widgets from Liquid payloads, and forwards sanitized interaction
+events to `/api/track`.
 
 ## Project Structure
 

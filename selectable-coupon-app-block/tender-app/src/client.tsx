@@ -41,6 +41,39 @@ type CartResponse = {
 	items?: CartItem[];
 };
 
+type CartAddLine = {
+	id?: number | string;
+	quantity?: number;
+	properties?: LineProperties | null;
+	[key: string]: unknown;
+};
+
+type CartAddPayload = CartAddLine & {
+	items?: CartAddLine[];
+};
+
+type CollectionCouponProduct = {
+	productId: string;
+	variantId: string;
+	handle: string;
+	priceCents: number;
+};
+
+type CollectionCouponPayload = {
+	couponId?: string;
+	discountLabel?: string;
+	title?: string;
+	unappliedText?: string;
+	appliedText?: string;
+	badgeText?: string;
+	detailsText?: string;
+	showSavingsEstimate?: boolean;
+	discountPercentage?: number | string;
+	currencyCode?: string;
+	trackUrl?: string;
+	products?: CollectionCouponProduct[];
+};
+
 declare const Shopify:
 	| {
 			routes?: {
@@ -53,16 +86,22 @@ const COUPON_PROPERTY = "_tender_coupon";
 const STATE_PREFIX = "tender_coupon";
 const FORM_SELECTOR =
 	'form[action*="/cart/add"], form[action*="/cart/add.js"], form[data-type="add-to-cart-form"]';
+const CART_ADD_PATH_PATTERN = /\/cart\/add(?:\.js)?$/;
+const COLLECTION_CONFIG_SELECTOR = "script[data-tender-coupon-collection]";
+const selectedCouponWidgets = new Set<TenderCouponWidget>();
+let cartAddFetchPatched = false;
 
 class TenderCouponWidget extends HTMLElement {
 	private config: CouponConfig | null = null;
 	private selected = false;
 	private submitHandler: ((event: SubmitEvent) => void) | null = null;
 	private stateHandler: ((event: Event) => void) | null = null;
+	private cartSubmittedHandler: ((event: Event) => void) | null = null;
 	private boundForm: HTMLFormElement | null = null;
 	private cartSyncGeneration = 0;
 
 	connectedCallback() {
+		ensureCartAddFetchPatch();
 		this.config = this.readConfig();
 		if (!this.config.couponId || !this.config.enabled) {
 			this.hidden = true;
@@ -71,9 +110,11 @@ class TenderCouponWidget extends HTMLElement {
 
 		this.selected = this.readStoredSelection();
 		this.bindStateChanges();
+		this.bindCartSubmitted();
 		this.render();
 		this.bindForm();
 		this.syncFormProperty();
+		this.updateSelectedRegistry();
 		this.track("coupon_viewed");
 	}
 
@@ -85,6 +126,11 @@ class TenderCouponWidget extends HTMLElement {
 			window.removeEventListener("tender-coupon-selection-changed", this.stateHandler);
 			this.stateHandler = null;
 		}
+		if (this.cartSubmittedHandler) {
+			document.removeEventListener("cart:submitted", this.cartSubmittedHandler);
+			this.cartSubmittedHandler = null;
+		}
+		selectedCouponWidgets.delete(this);
 	}
 
 	private readConfig(): CouponConfig {
@@ -179,6 +225,7 @@ class TenderCouponWidget extends HTMLElement {
 		this.render();
 		this.bindForm();
 		this.syncFormProperty();
+		this.updateSelectedRegistry();
 		this.syncCartLines();
 		this.track(this.selected ? "coupon_selected" : "coupon_cleared");
 	}
@@ -194,9 +241,18 @@ class TenderCouponWidget extends HTMLElement {
 			this.render();
 			this.bindForm();
 			this.syncFormProperty();
+			this.updateSelectedRegistry();
 			this.syncCartLines();
 		};
 		window.addEventListener("tender-coupon-selection-changed", this.stateHandler);
+	}
+
+	private bindCartSubmitted() {
+		if (this.cartSubmittedHandler) return;
+		this.cartSubmittedHandler = () => {
+			if (this.selected) this.syncCartLines();
+		};
+		document.addEventListener("cart:submitted", this.cartSubmittedHandler);
 	}
 
 	private announceStateChange() {
@@ -224,6 +280,24 @@ class TenderCouponWidget extends HTMLElement {
 			if (this.selected) this.track("coupon_add_started");
 		};
 		form.addEventListener("submit", this.submitHandler, true);
+	}
+
+	getSelectedCartAddConfig() {
+		if (!this.selected || !this.config) return null;
+		return this.config;
+	}
+
+	syncSelectedCartLines() {
+		if (this.selected) this.syncCartLines();
+	}
+
+	private updateSelectedRegistry() {
+		const config = this.config;
+		if (this.selected && config?.couponId && config.variantId) {
+			selectedCouponWidgets.add(this);
+			return;
+		}
+		selectedCouponWidgets.delete(this);
 	}
 
 	private syncFormProperty() {
@@ -396,6 +470,145 @@ class TenderCouponWidget extends HTMLElement {
 	}
 }
 
+function ensureCartAddFetchPatch() {
+	if (cartAddFetchPatched || typeof window.fetch !== "function") return;
+	cartAddFetchPatched = true;
+
+	const originalFetch = window.fetch.bind(window);
+	window.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+		const isCartAdd = isCartAddRequest(input);
+		const nextInit = isCartAdd ? injectCouponIntoCartAddInit(init) : init;
+		const responsePromise = originalFetch(input, nextInit);
+
+		if (isCartAdd) {
+			void responsePromise
+				.then((response) => {
+					if (!response.ok) return;
+					window.setTimeout(syncSelectedCouponCartLines, 0);
+				})
+				.catch(() => undefined);
+		}
+
+		return responsePromise;
+	}) as typeof window.fetch;
+}
+
+function isCartAddRequest(input: RequestInfo | URL) {
+	const url = requestUrl(input);
+	if (!url) return false;
+
+	try {
+		const parsed = new URL(url, window.location.href);
+		return parsed.origin === window.location.origin &&
+			CART_ADD_PATH_PATTERN.test(parsed.pathname);
+	} catch {
+		return false;
+	}
+}
+
+function requestUrl(input: RequestInfo | URL) {
+	if (typeof input === "string") return input;
+	if (input instanceof URL) return input.href;
+	if (typeof Request !== "undefined" && input instanceof Request) return input.url;
+	return "";
+}
+
+function injectCouponIntoCartAddInit(init: RequestInit | undefined) {
+	const body = init?.body;
+	if (!body) return init;
+
+	if (typeof FormData !== "undefined" && body instanceof FormData) {
+		injectCouponIntoFormData(body);
+		return init;
+	}
+
+	if (typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams) {
+		injectCouponIntoSearchParams(body);
+		return init;
+	}
+
+	if (typeof body !== "string") return init;
+
+	const nextBody = injectCouponIntoJsonBody(body);
+	if (!nextBody) return init;
+
+	return {
+		...init,
+		body: nextBody
+	};
+}
+
+function injectCouponIntoJsonBody(body: string) {
+	let payload: unknown;
+	try {
+		payload = JSON.parse(body);
+	} catch {
+		return "";
+	}
+
+	if (!isCartAddPayload(payload)) return "";
+	return injectCouponIntoCartAddPayload(payload) ? JSON.stringify(payload) : "";
+}
+
+function isCartAddPayload(value: unknown): value is CartAddPayload {
+	return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function injectCouponIntoCartAddPayload(payload: CartAddPayload) {
+	if (Array.isArray(payload.items)) {
+		let changed = false;
+		for (const line of payload.items) {
+			changed = injectCouponIntoCartAddLine(line) || changed;
+		}
+		return changed;
+	}
+
+	return injectCouponIntoCartAddLine(payload);
+}
+
+function injectCouponIntoCartAddLine(line: CartAddLine) {
+	const variantId = normalizeNumericId(String(line.id ?? ""));
+	const config = selectedCouponConfigForVariant(variantId);
+	if (!config) return false;
+
+	line.properties = {
+		...normalizeProperties(line.properties),
+		[COUPON_PROPERTY]: config.couponId
+	};
+	return true;
+}
+
+function injectCouponIntoFormData(body: FormData) {
+	const config = selectedCouponConfigForVariant(
+		normalizeNumericId(String(body.get("id") ?? ""))
+	);
+	if (!config) return;
+	body.set(`properties[${COUPON_PROPERTY}]`, config.couponId);
+}
+
+function injectCouponIntoSearchParams(body: URLSearchParams) {
+	const config = selectedCouponConfigForVariant(normalizeNumericId(body.get("id") ?? ""));
+	if (!config) return;
+	body.set(`properties[${COUPON_PROPERTY}]`, config.couponId);
+}
+
+function selectedCouponConfigForVariant(variantId: string) {
+	if (!variantId) return null;
+
+	for (const widget of selectedCouponWidgets) {
+		const config = widget.getSelectedCartAddConfig();
+		if (config?.variantId === variantId) return config;
+	}
+
+	return null;
+}
+
+function syncSelectedCouponCartLines() {
+	for (const widget of selectedCouponWidgets) {
+		widget.syncSelectedCartLines();
+	}
+}
+
 function textValue(value: string | undefined, fallback: string) {
 	const trimmed = value?.trim();
 	return trimmed ? trimmed : fallback;
@@ -404,6 +617,11 @@ function textValue(value: string | undefined, fallback: string) {
 function nativeCouponLabel(discountLabel: string) {
 	const compactLabel = discountLabel.replace(/\s+off$/i, "");
 	return `Apply ${compactLabel} coupon`;
+}
+
+function nativeRedeemedLabel(percentage: number) {
+	const label = percentage > 0 ? formatPercentage(percentage) : "20%";
+	return `Redeemed. Save ${label} applied at checkout`;
 }
 
 function normalizeNumericId(value: string | undefined) {
@@ -561,9 +779,124 @@ function cartEndpoint(path: string) {
 	return `${root.replace(/\/?$/, "/")}${path.replace(/^\//, "")}`;
 }
 
+function hydrateCollectionCoupons() {
+	const payloadScripts = Array.from(
+		document.querySelectorAll<HTMLScriptElement>(COLLECTION_CONFIG_SELECTOR)
+	);
+
+	for (const script of payloadScripts) {
+		const payloadId = script.dataset.tenderCouponCollection || "default";
+		const payload = parseCollectionCouponPayload(script.textContent || "");
+		if (!payload?.couponId || !Array.isArray(payload.products)) continue;
+
+		for (const product of payload.products) {
+			injectCollectionCoupon(payloadId, payload, product);
+		}
+	}
+}
+
+function parseCollectionCouponPayload(text: string) {
+	try {
+		const payload = JSON.parse(text) as unknown;
+		if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+		return payload as CollectionCouponPayload;
+	} catch {
+		return null;
+	}
+}
+
+function injectCollectionCoupon(
+	payloadId: string,
+	payload: CollectionCouponPayload,
+	product: CollectionCouponProduct
+) {
+	const card = findCollectionCard(product.handle);
+	if (!card) return;
+
+	const couponId = textValue(payload.couponId, "");
+	const variantId = normalizeNumericId(product.variantId);
+	if (!couponId || !variantId) return;
+
+	const existing = card.querySelector(
+		`tender-coupon-widget[data-coupon-id="${cssEscape(couponId)}"][data-variant-id="${cssEscape(variantId)}"]`
+	);
+	if (existing) return;
+
+	const target = findCollectionWidgetTarget(card);
+	const widget = document.createElement("tender-coupon-widget");
+	widget.dataset.tenderCollectionInjected = payloadId;
+	widget.dataset.surface = "collection";
+	widget.dataset.enabled = "true";
+	widget.dataset.couponId = couponId;
+	widget.dataset.discountLabel = textValue(payload.discountLabel, "20% off");
+	widget.dataset.title = textValue(payload.title, widget.dataset.discountLabel);
+	widget.dataset.unappliedText = textValue(
+		payload.unappliedText,
+		nativeCouponLabel(widget.dataset.discountLabel)
+	);
+	widget.dataset.appliedText = textValue(
+		payload.appliedText,
+		nativeRedeemedLabel(percentageValue(String(payload.discountPercentage || "")))
+	);
+	widget.dataset.badgeText = textValue(payload.badgeText, widget.dataset.unappliedText);
+	widget.dataset.detailsText = textValue(payload.detailsText, "");
+	widget.dataset.productId = normalizeNumericId(product.productId);
+	widget.dataset.variantId = variantId;
+	widget.dataset.showSavingsEstimate = "false";
+	widget.dataset.priceCents = String(product.priceCents || 0);
+	widget.dataset.discountPercentage = String(payload.discountPercentage || "");
+	widget.dataset.currencyCode = textValue(payload.currencyCode, "USD");
+	widget.dataset.trackUrl = textValue(payload.trackUrl, "");
+
+	target.appendChild(widget);
+}
+
+function findCollectionWidgetTarget(card: HTMLElement) {
+	return card.querySelector<HTMLElement>(
+		[
+			"[data-product-card-details]",
+			".product-card__info",
+			".product-card__content",
+			".card-information",
+			".card__content",
+			".flex.flex-col.items-start.w-full.gap-2"
+		].join(", ")
+	) || card;
+}
+
+function findCollectionCard(handle: string) {
+	const normalizedHandle = handle.trim();
+	if (!normalizedHandle) return null;
+
+	const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"));
+	for (const link of links) {
+		const href = link.getAttribute("href") || "";
+		if (!href.includes(`/products/${normalizedHandle}`)) continue;
+		const card = link.closest<HTMLElement>(
+			[
+				".product-card-wrapper",
+				"product-card",
+				".product-card",
+				".card-wrapper",
+				"[data-product-card]",
+				"article",
+				"li"
+			].join(", ")
+		);
+		if (card) return card;
+	}
+
+	return null;
+}
+
 if (!customElements.get("tender-coupon-widget")) {
 	customElements.define("tender-coupon-widget", TenderCouponWidget);
 }
+
+hydrateCollectionCoupons();
+document.addEventListener("DOMContentLoaded", hydrateCollectionCoupons, { once: true });
+document.addEventListener("htmx:afterSwap", hydrateCollectionCoupons);
+document.addEventListener("shopify:section:load", hydrateCollectionCoupons);
 
 const appRoot = document.querySelector<HTMLElement>("#app");
 if (appRoot && !document.querySelector("tender-coupon-widget")) {
@@ -576,7 +909,7 @@ if (appRoot && !document.querySelector("tender-coupon-widget")) {
 				data-variant-id="22222222222222"
 				data-title="Summer sale"
 				data-unapplied-text="Apply 20% coupon"
-				data-applied-text="Apply 20% coupon"
+				data-applied-text="Redeemed. Save 20% applied at checkout"
 				data-badge-text="Apply 20% coupon"
 				data-details-text="Demo product coupon."
 				data-surface="product"

@@ -18,7 +18,17 @@
         "handle": "coupon-widget",
         "sourcePath": "extensions/coupon-widget/shopify.extension.toml",
         "runtimeUrl": "<published-tender-app-url>/client.js",
-        "stylesheetUrl": "<published-tender-app-url>/styles.css"
+        "stylesheetUrl": "<published-tender-app-url>/styles.css",
+        "blocks": [
+          {
+            "handle": "selectable_coupon",
+            "sourcePath": "extensions/coupon-widget/blocks/selectable_coupon.liquid"
+          },
+          {
+            "handle": "selectable_coupon_collection_embed",
+            "sourcePath": "extensions/coupon-widget/blocks/selectable_coupon_collection_embed.liquid"
+          }
+        ]
       },
       {
         "type": "function",
@@ -36,5 +46,18 @@
   "secrets": {
     "clientSecret": "stored in Tender connector credentials, not in this source tree",
     "appAutomationToken": "stored in Tender connector secret store, not in this source tree"
-  }
+  },
+  "tenderApps": [
+    {
+      "name": "Selectable Coupon App",
+      "artifactId": "<tender-artifact-id>",
+      "elementTag": "tender-coupon-widget",
+      "runtimeUrl": "<published-tender-app-url>/client.js",
+      "stylesheetUrl": "<published-tender-app-url>/styles.css",
+      "publishedReleaseId": "<published-release-id>",
+      "blockHandle": "selectable_coupon",
+      "collectionEmbedHandle": "selectable_coupon_collection_embed",
+      "functionHandle": "selectable-coupon-discount"
+    }
+  ]
 }
