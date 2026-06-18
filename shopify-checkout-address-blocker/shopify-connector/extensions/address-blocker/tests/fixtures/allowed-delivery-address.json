@@ -1,0 +1,41 @@
+{
+  "payload": {
+    "export": "cart_validations_generate_run",
+    "target": "cart.validations.generate.run",
+      "input": {
+        "cart": {
+          "buyerIdentity": {
+            "email": "allowed@example.com",
+            "phone": "+1 (555) 111-2222"
+          },
+          "deliveryGroups": [
+            {
+              "deliveryAddress": {
+                "address1": "31 Spooner Street",
+                "city": "Quahog",
+                "provinceCode": "RI",
+                "countryCode": "US",
+                "zip": "02860",
+                "phone": "+1 (555) 111-2222"
+              }
+            }
+          ],
+        "billingAddress": null
+      },
+      "shop": {
+        "blockedAddresses": {
+          "value": "742 Evergreen Terrace | 97403 | Springfield | OR | US"
+        }
+      }
+    },
+    "output": {
+      "operations": [
+        {
+          "validationAdd": {
+            "errors": []
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "payload": {
+    "export": "cart_validations_generate_run",
+    "target": "cart.validations.generate.run",
+      "input": {
+        "cart": {
+          "buyerIdentity": null,
+          "deliveryGroups": [
+            {
+              "deliveryAddress": {
+                "address1": "742 Evergreen Terrace",
+                "city": "Springfield",
+                "provinceCode": "OR",
+                "countryCode": "US",
+                "zip": "97403",
+                "phone": null
+              }
+            }
+          ],
+          "billingAddress": null
+        },
+      "shop": {
+        "blockedAddresses": {
+          "value": "742 evergreen terrace | 97403 | springfield | OR | US"
+        }
+      }
+    },
+    "output": {
+      "operations": [
+        {
+          "validationAdd": {
+            "errors": [
+              {
+                "message": "We cannot accept orders with this contact or address.",
+                "target": "$.cart"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

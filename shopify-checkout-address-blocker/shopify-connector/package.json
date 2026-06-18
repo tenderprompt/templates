@@ -1,0 +1,22 @@
+{
+  "name": "shopify-checkout-address-blocker",
+  "private": true,
+  "scripts": {
+    "shopify": "shopify",
+    "build": "shopify app build",
+    "validate": "shopify app config validate --path . --json"
+  },
+  "dependencies": {
+    "@shopify/app-bridge": "^3.7.11",
+    "@shopify/app-bridge-react": "^4.2.11",
+    "@shopify/app-bridge-types": "^0.7.1",
+    "@shopify/polaris-types": "^1.0.1",
+    "@shopify/ui-extensions": "^2026.7.0-rc.7",
+    "preact": "^10.29.2"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^4.2.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.0.0"
+  }
+}

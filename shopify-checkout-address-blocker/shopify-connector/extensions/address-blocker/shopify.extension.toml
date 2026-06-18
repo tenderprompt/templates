@@ -1,0 +1,18 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "t:name"
+handle = "address-blocker"
+type = "function"
+uid = "56b5aab6-4bcf-1541-f30e-c703a0b5998e1a2469bc"
+description = "t:description"
+
+  [[extensions.targeting]]
+  target = "cart.validations.generate.run"
+  input_query = "src/cart_validations_generate_run.graphql"
+  export = "cart_validations_generate_run"
+
+  [extensions.build]
+  command = "scripts/build-function.sh"
+  path = "target/wasm32-unknown-unknown/release/address-blocker.wasm"
+  watch = ["src/**/*.rs"]
