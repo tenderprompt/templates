@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "shopify_connector_source",
+  "connectorId": "<tender-connector-id>",
+  "instanceId": "default",
+  "shopDomain": "<shop-name>.myshopify.com",
+  "adminApiVersion": "2026-04",
+  "clientId": "<shopify-client-id>",
+  "scopes": [
+    "read_orders",
+    "read_validations",
+    "write_validations"
+  ],
+  "shopify": {
+    "extensions": [
+      {
+        "type": "function",
+        "handle": "address-blocker",
+        "target": "cart.validations.generate.run",
+        "sourcePath": "extensions/address-blocker/shopify.extension.toml"
+      },
+      {
+        "type": "admin_ui_extension",
+        "handle": "address-blocker-home",
+        "sourcePath": "extensions/address-blocker-home/shopify.extension.toml"
+      }
+    ],
+    "metafields": [
+      {
+        "owner": "shop",
+        "namespace": "$app",
+        "key": "blocked_addresses",
+        "type": "multi_line_text_field"
+      }
+    ]
+  },
+  "secrets": {
+    "clientSecret": "stored in Tender connector credentials, not in this source tree",
+    "appAutomationToken": "stored in Tender connector secret store, not in this source tree"
+  }
+}

@@ -12,3 +12,7 @@ Reusable starter templates for Tender Prompt apps and connector source trees.
   clippable coupons on product and collection pages, backed by a Tender runtime
   app, Shopify Theme App Extension block, App Home starter, and Discount
   Function enforcement.
+- `shopify-checkout-address-blocker/`: a tenant-neutral Shopify custom app
+  source for blocking checkout by address, email, or phone, with a Cart and
+  Checkout Validation Function and an App Home editor that can import contact
+  details from existing orders.

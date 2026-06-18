@@ -1,0 +1,4 @@
+{
+  "name": "Checkout address blocker",
+  "description": "Reject checkout when a blocked address is used"
+}

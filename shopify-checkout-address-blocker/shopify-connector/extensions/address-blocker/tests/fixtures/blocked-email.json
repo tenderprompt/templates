@@ -1,0 +1,46 @@
+{
+  "payload": {
+    "export": "cart_validations_generate_run",
+    "target": "cart.validations.generate.run",
+    "input": {
+      "cart": {
+        "buyerIdentity": {
+          "email": "Blocked@Example.com",
+          "phone": null
+        },
+        "deliveryGroups": [
+          {
+            "deliveryAddress": {
+              "address1": "31 Spooner Street",
+              "city": "Quahog",
+              "provinceCode": "RI",
+              "countryCode": "US",
+              "zip": "02860",
+              "phone": null
+            }
+          }
+        ],
+        "billingAddress": null
+      },
+      "shop": {
+        "blockedAddresses": {
+          "value": " | | | | | gid://shopify/Order/1 | #1001 | blocked@example.com | "
+        }
+      }
+    },
+    "output": {
+      "operations": [
+        {
+          "validationAdd": {
+            "errors": [
+              {
+                "message": "We cannot accept orders with this contact or address.",
+                "target": "$.cart"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
