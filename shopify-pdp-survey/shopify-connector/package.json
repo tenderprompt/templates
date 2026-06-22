@@ -1,0 +1,10 @@
+{
+  "name": "shopify-pdp-survey-connector-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "check": "shopify app build"
+  },
+  "dependencies": {}
+}

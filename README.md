@@ -7,6 +7,8 @@ Reusable starter templates for Tender Prompt apps and connector source trees.
 - `fixed-price-bundle-builder/`: a tenant-neutral fixed-price bundle builder
   reference implementation with a Tender runtime app and Shopify connector
   source shape.
+- `shopify-pdp-survey/`: a small product page survey app block with a hosted
+  Tender runtime, pinned release URLs, and private cart line item properties.
 - `selectable-coupon-app-block/`: a tenant-neutral starter for vibe coding a
   Shopify coupon app that lets merchants show clickable, Amazon-style
   clippable coupons on product and collection pages, backed by a Tender runtime

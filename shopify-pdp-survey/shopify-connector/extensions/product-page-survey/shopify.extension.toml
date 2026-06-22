@@ -1,0 +1,7 @@
+api_version = "2026-04"
+
+[[extensions]]
+type = "theme"
+name = "Product page survey"
+handle = "product-page-survey"
+uid = "REPLACE_WITH_SHOPIFY_EXTENSION_UID"

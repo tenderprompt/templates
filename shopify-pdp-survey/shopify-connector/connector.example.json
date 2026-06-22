@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "shopify_connector_source",
+  "connectorId": "<tender-connector-id>",
+  "instanceId": "default",
+  "shopDomain": "<shop-name>.myshopify.com",
+  "adminApiVersion": "2026-04",
+  "clientId": "<shopify-client-id>",
+  "scopes": [],
+  "shopify": {
+    "extensions": [
+      {
+        "type": "theme",
+        "handle": "product-page-survey",
+        "sourcePath": "extensions/product-page-survey/shopify.extension.toml",
+        "runtimeUrl": "<published-tender-app-url>/client.js",
+        "stylesheetUrl": "<published-tender-app-url>/styles.css",
+        "blocks": [
+          {
+            "handle": "product_page_survey",
+            "sourcePath": "extensions/product-page-survey/blocks/product_page_survey.liquid"
+          }
+        ]
+      }
+    ]
+  },
+  "secrets": {
+    "clientSecret": "stored in Tender connector credentials, not in this source tree",
+    "appAutomationToken": "stored in Tender connector secret store, not in this source tree"
+  },
+  "tenderApps": [
+    {
+      "name": "Product Page Survey Runtime",
+      "artifactId": "<tender-artifact-id>",
+      "elementTag": "tender-product-survey",
+      "runtimeUrl": "<published-tender-app-url>/client.js",
+      "stylesheetUrl": "<published-tender-app-url>/styles.css",
+      "publishedReleaseId": "<published-release-id>",
+      "blockHandle": "product_page_survey"
+    }
+  ]
+}

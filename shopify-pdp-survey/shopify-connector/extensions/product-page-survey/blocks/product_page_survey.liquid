@@ -1,0 +1,99 @@
+{% doc %}
+  Tender product page survey app block.
+
+  This block loads a pinned Tender runtime release and writes the shopper's
+  answer to private cart line item properties. It intentionally does not send
+  analytics, create dashboards, or store responses in a Tender database.
+{% enddoc %}
+
+{% liquid
+  assign runtime_version = block.settings.runtime_version | default: "preview"
+  assign question = block.settings.question | default: "How did you hear about this product?"
+  assign answers = block.settings.answers | default: "Instagram|Friend|Search|Other"
+  assign answer_property_key = block.settings.answer_property_key | default: "_tender_product_survey"
+  assign question_property_key = block.settings.question_property_key | default: "_tender_product_survey_question"
+  assign status_text = block.settings.status_text | default: "Answer saved with your cart."
+
+  case runtime_version
+    when "release-REPLACE_WITH_RELEASE_ID"
+      assign runtime_src = "https://REPLACE_WITH_PUBLISHED_TENDER_HOST/client.js"
+      assign stylesheet_src = "https://REPLACE_WITH_PUBLISHED_TENDER_HOST/styles.css"
+    else
+      assign runtime_src = "https://REPLACE_WITH_PREVIEW_TENDER_HOST/client.js"
+      assign stylesheet_src = "https://REPLACE_WITH_PREVIEW_TENDER_HOST/styles.css"
+  endcase
+%}
+
+<link rel="stylesheet" href="{{ stylesheet_src }}">
+<script src="{{ runtime_src }}" defer></script>
+
+<tender-product-survey
+  {{ block.shopify_attributes }}
+  data-question="{{ question | escape }}"
+  data-answers="{{ answers | escape }}"
+  data-answer-property-key="{{ answer_property_key | escape }}"
+  data-question-property-key="{{ question_property_key | escape }}"
+  data-status-text="{{ status_text | escape }}"
+  {% if block.settings.form_selector != blank %}
+    data-form-selector="{{ block.settings.form_selector | escape }}"
+  {% endif %}
+>
+  <div style="box-sizing: border-box; min-height: 96px; border: 1px solid rgba(0,0,0,.12); border-radius: 8px;"></div>
+</tender-product-survey>
+
+{% schema %}
+{
+  "name": "t:product_page_survey.block_name",
+  "target": "section",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "select",
+      "id": "runtime_version",
+      "label": "Runtime version",
+      "options": [
+        { "value": "preview", "label": "Preview" },
+        { "value": "release-REPLACE_WITH_RELEASE_ID", "label": "Pinned release" }
+      ],
+      "default": "preview"
+    },
+    {
+      "type": "text",
+      "id": "question",
+      "label": "Question",
+      "default": "How did you hear about this product?"
+    },
+    {
+      "type": "textarea",
+      "id": "answers",
+      "label": "Answers",
+      "default": "Instagram|Friend|Search|Other",
+      "info": "Separate answers with a pipe character."
+    },
+    {
+      "type": "text",
+      "id": "answer_property_key",
+      "label": "Answer line property",
+      "default": "_tender_product_survey"
+    },
+    {
+      "type": "text",
+      "id": "question_property_key",
+      "label": "Question line property",
+      "default": "_tender_product_survey_question"
+    },
+    {
+      "type": "text",
+      "id": "status_text",
+      "label": "Saved message",
+      "default": "Answer saved with your cart."
+    },
+    {
+      "type": "text",
+      "id": "form_selector",
+      "label": "Product form selector",
+      "info": "Optional. Leave blank for automatic product form detection."
+    }
+  ]
+}
+{% endschema %}
